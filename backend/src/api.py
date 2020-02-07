@@ -29,17 +29,20 @@ CORS(app)
 '''
 @app.route('/drinks', methods=['GET'])
 def get_all_drinks():
-    drinks = Drink.query.all()
-    drinks = [drink.long() for drink in drinks]
-    print(drinks)
+    try:
+        drinks = Drink.query.all()
+        drinks = [drink.long() for drink in drinks]
+        print(drinks)
 
-    if(len(drinks)) == 0:
-        abort(404)
+        if(len(drinks)) == 0:
+            abort(404)
 
-    return jsonify({
-        "success": True,
-        "drinks": drinks
-    })
+        return jsonify({
+            "success": True,
+            "drinks": drinks
+        })
+    except BaseException:
+        abort(422)
 
 
 '''
@@ -52,16 +55,19 @@ def get_all_drinks():
 '''
 @app.route('/drinks-detail', methods=['GET'])
 def get_drinks_detail():
-    drinks = Drink.query.all()
-    drinks = [drink.long() for drink in drinks]
+    try:
+        drinks = Drink.query.all()
+        drinks = [drink.long() for drink in drinks]
 
-    if(len(drinks)) == 0:
-        abort(404)
+        if(len(drinks)) == 0:
+            abort(404)
 
-    return jsonify({
-        "success": True,
-        "drinks": drinks
-    })
+        return jsonify({
+            "success": True,
+            "drinks": drinks
+        })
+    except BaseException:
+        abort(422)
 
 
 '''
@@ -75,22 +81,25 @@ def get_drinks_detail():
 '''
 @app.route('/drinks', methods=['POST'])
 def create_drink():
-    body = request.get_json()
+    try:
+        req = request.get_json()
 
-    new_title = body.get('title', None)
-    new_repice = body.get('recipe', None)
+        new_title = req.get('title', None)
+        new_repice = req.get('recipe', None)
 
-    drink = Drink(
-        title=new_title,
-        recipe=new_repice
-    )
+        drink = Drink(
+            title=new_title,
+            recipe=new_repice
+        )
 
-    drink.insert()
+        drink.insert()
 
-    return jsonify({
-        "success": True,
-        "drinks": drink.long()
-    })
+        return jsonify({
+            "success": True,
+            "drinks": drink.long()
+        })
+    except BaseException:
+        abort(422)
 
 
 '''
@@ -106,22 +115,25 @@ def create_drink():
 '''
 @app.route('/drinks/<id>', methods=['PATCH'])
 def update_drink(id):
-    req = request.get_json()
+    try:
+        req = request.get_json()
 
-    drink = Drink.query.filter_by(id=id).first()
+        drink = Drink.query.filter_by(id=id).first()
 
-    '''If drink invalid, abort with 404'''
-    if drink is None:
-        abort(404)
+        '''If drink invalid, abort with 404'''
+        if drink is None:
+            abort(404)
 
-    drink.title = req.get('title', None)
-    drink.recipe = req.get('recipe', None)
-    drink.update()
+        drink.title = req.get('title', None)
+        drink.recipe = req.get('recipe', None)
+        drink.update()
 
-    return jsonify({
-        "success": True,
-        "drinks": drink.long()
-    })
+        return jsonify({
+            "success": True,
+            "drinks": drink.long()
+        })
+    except BaseException:
+        abort(422)
 
 
 '''
@@ -136,18 +148,21 @@ def update_drink(id):
 '''
 @app.route('/drinks/<id>', methods=['DELETE'])
 def delete_drink(id):
-    drink = Drink.query.filter_by(id=id).one_or_none()
+    try:
+        drink = Drink.query.filter_by(id=id).one_or_none()
 
-    '''If drink invalid, abort with 404'''
-    if drink is None:
-        abort(404)
+        '''If drink invalid, abort with 404'''
+        if drink is None:
+            abort(404)
 
-    drink.delete()
+        drink.delete()
 
-    return jsonify({
-        "success": True,
-        "delete": id
-    })
+        return jsonify({
+            "success": True,
+            "delete": id
+        })
+    except BaseException:
+        abort(422)
 
 
 # Error Handling
@@ -171,13 +186,19 @@ def unprocessable(error):
                     "error": 404,
                     "message": "resource not found"
                     }), 404
-
 '''
 
 '''
 @TODO implement error handler for 404
     error handler should conform to general task above 
 '''
+@app.errorhandler(404)
+def not_found(error):
+    return jsonify({
+        "success": False,
+        "error": 404,
+        "message": "resource not found"
+    }), 404
 
 
 '''
