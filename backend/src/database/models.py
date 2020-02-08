@@ -64,9 +64,15 @@ class Drink(db.Model):
     '''
 
     def short(self):
-        print(json.loads(self.recipe))
-        short_recipe = [{'color': r['color'], 'parts': r['parts']}
-                        for r in json.loads(self.recipe)]
+        # print(json.loads(self.recipe))
+        # short_recipe = [{'color': r['color'], 'parts': r['parts']}
+        #                 for r in json.loads(self.recipe)]
+        short_recipe = {}
+        recipe = json.loads(self.recipe)
+        for r in recipe:
+            if r != 'name':
+                short_recipe[r] = recipe[r]
+
         return {
             'id': self.id,
             'title': self.title,
@@ -82,7 +88,7 @@ class Drink(db.Model):
         return {
             'id': self.id,
             'title': self.title,
-            'recipe': self.recipe
+            'recipe': json.loads(self.recipe)
         }
 
     '''
@@ -125,5 +131,5 @@ class Drink(db.Model):
     def update(self):
         db.session.commit()
 
-    # def __repr__(self):
-    #     return json.dumps(self.short())
+    def __repr__(self):
+        return json.dumps(self.short())
