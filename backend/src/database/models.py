@@ -76,7 +76,8 @@ class Drink(db.Model):
         if(isinstance(recipe, list)):
             for index in range(len(recipe)):
                 short_recipe.append(
-                    {'color': recipe[index]['color'], 'parts': recipe[index]['parts']})
+                    {'color': recipe[index]['color'],
+                        'parts': recipe[index]['parts']})
 
         return {
             'id': self.id,

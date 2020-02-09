@@ -43,7 +43,6 @@ def get_token_auth_header():
             'code': 'authorization_header_missing',
             'description': 'Authorization header is expected.'
         }, 401)
-    # raise Exception('Not Implemented')
 
     parts = auth.split()
     if parts[0].lower() != 'bearer':
@@ -82,7 +81,6 @@ def get_token_auth_header():
 
 
 def check_permissions(permission, payload):
-    # raise Exception('Not Implemented')
     if 'permissions' not in payload:
         raise AuthError({
             'code': 'invalid_claims',
@@ -114,9 +112,10 @@ def check_permissions(permission, payload):
 
 
 def verify_decode_jwt(token):
-    # raise Exception('Not Implemented')
+    '''Retrieve the JWKS from the Auth0 endpoint /.well-known/jwks.json'''
     jsonurl = urlopen(f'https://{AUTH0_DOMAIN}/.well-known/jwks.json')
     jwks = json.loads(jsonurl.read())
+    '''Grab the kid property from the Header of the decoded JWT'''
     unverified_header = jwt.get_unverified_header(token)
     rsa_key = {}
     if 'kid' not in unverified_header:
@@ -124,7 +123,7 @@ def verify_decode_jwt(token):
             'code': 'invalid_header',
             'description': 'Authorization malformed.'
         }, 401)
-
+    '''Search your filtered JWKS for the key with the matching kid property'''
     for key in jwks['keys']:
         if key['kid'] == unverified_header['kid']:
             rsa_key = {
@@ -134,6 +133,7 @@ def verify_decode_jwt(token):
                 'n': key['n'],
                 'e': key['e']
             }
+    '''Build a certificate using the corresponding x5c property in your JWKS'''
     if rsa_key:
         try:
             payload = jwt.decode(
@@ -143,7 +143,7 @@ def verify_decode_jwt(token):
                 audience=API_AUDIENCE,
                 issuer='https://' + AUTH0_DOMAIN + '/'
             )
-
+            '''Use the certificate to verify the JWT's signature'''
             return payload
 
         except jwt.ExpiredSignatureError:
@@ -155,7 +155,8 @@ def verify_decode_jwt(token):
         except jwt.JWTClaimsError:
             raise AuthError({
                 'code': 'invalid_claims',
-                'description': 'Incorrect claims. Please, check the audience and issuer.'
+                'description': 'Incorrect claims. '
+                + 'Please, check the audience and issuer.'
             }, 401)
         except Exception:
             raise AuthError({
