@@ -70,10 +70,12 @@ class Drink(db.Model):
         #                 for r in json.loads(self.recipe)]
 
         short_recipe = []
-        recipes = json.loads(self.recipe)
-        for index in range(len(recipes)):
-            short_recipe.append(
-                {'color': recipes[index]['color'], 'parts': recipes[index]['parts']})
+        recipe = json.loads(self.recipe)
+
+        if(isinstance(recipe, list)):
+            for index in range(len(recipe)):
+                short_recipe.append(
+                    {'color': recipe[index]['color'], 'parts': recipe[index]['parts']})
 
         return {
             'id': self.id,
